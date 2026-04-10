@@ -41,7 +41,7 @@ function App() {
             <div className="value">{sensors.gas}<span>PPM</span></div>
           </div>
           <div className="card">
-            <h3>Light</h3>
+            <h3>Light Intensity</h3>
             <div className="value">{sensors.light}<span>Lux</span></div>
           </div>
           

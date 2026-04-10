@@ -20,43 +20,58 @@ function App() {
         wind: (Math.random() * 65).toFixed(2)
       });
     }, 2000);
+
     return () => clearInterval(interval);
   }, []);
 
   return (
     <div className="App">
       <header className="App-header">
-        <h1 className="App-link">Yagnesh's IoT Security Dashboard</h1>
-        
+
+        {/* HEADER */}
+        <h1 className="App-link">
+          Yagnesh's IoT Security Dashboard
+        </h1>
+
+        {/* SENSOR GRID */}
         <div className="sensor-grid">
+
           <div className="card">
             <h3>Temperature</h3>
             <p>{sensors.temperature} °C</p>
           </div>
+
           <div className="card">
             <h3>Humidity</h3>
             <p>{sensors.humidity} %</p>
           </div>
+
           <div className="card">
             <h3>Gas Level</h3>
             <p>{sensors.gas} PPM</p>
           </div>
+
           <div className="card">
             <h3>Light Intensity</h3>
             <p>{sensors.light} Lux</p>
           </div>
 
-          {/* THE 5TH SENSOR BLOCK */}
+          {/* ✅ WIND SENSOR (DAY 3 EXTENSION) */}
           <div className="card wind-highlight">
             <h3>Wind Speed</h3>
+
+            {/* WIND ANIMATION */}
             <div className="wind-box">
               <div className="wind-trace trace-1"></div>
               <div className="wind-trace trace-2"></div>
               <div className="wind-trace trace-3"></div>
             </div>
+
             <p>{sensors.wind} km/h</p>
           </div>
+
         </div>
+
       </header>
     </div>
   );

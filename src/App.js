@@ -3,7 +3,7 @@ import './App.css';
 
 function App() {
   const [sensors, setSensors] = useState({
-    temp: 0,
+    temperature: 0,
     humidity: 0,
     gas: 0,
     light: 0,
@@ -13,11 +13,11 @@ function App() {
   useEffect(() => {
     const interval = setInterval(() => {
       setSensors({
-        temp: (Math.random() * 45).toFixed(1),
-        humidity: (Math.random() * 100).toFixed(1),
-        gas: (Math.random() * 300).toFixed(1),
-        light: (Math.random() * 1000).toFixed(0),
-        wind: (Math.random() * 55).toFixed(1)
+        temperature: (Math.random() * 50).toFixed(2),
+        humidity: (Math.random() * 100).toFixed(2),
+        gas: (Math.random() * 400).toFixed(2),
+        light: (Math.random() * 1000).toFixed(2),
+        wind: (Math.random() * 65).toFixed(2)
       });
     }, 2000);
     return () => clearInterval(interval);
@@ -26,34 +26,35 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Yagnesh's Digital Armour Dashboard</h1>
+        <h1 className="App-link">Yagnesh's IoT Security Dashboard</h1>
+        
         <div className="sensor-grid">
           <div className="card">
             <h3>Temperature</h3>
-            <div className="value">{sensors.temp}<span>°C</span></div>
+            <p>{sensors.temperature} °C</p>
           </div>
           <div className="card">
             <h3>Humidity</h3>
-            <div className="value">{sensors.humidity}<span>%</span></div>
+            <p>{sensors.humidity} %</p>
           </div>
           <div className="card">
             <h3>Gas Level</h3>
-            <div className="value">{sensors.gas}<span>PPM</span></div>
+            <p>{sensors.gas} PPM</p>
           </div>
           <div className="card">
             <h3>Light Intensity</h3>
-            <div className="value">{sensors.light}<span>Lux</span></div>
+            <p>{sensors.light} Lux</p>
           </div>
-          
-          {/* THE FIFTH SENSOR WITH ANIMATION */}
-          <div className="card wind-card">
+
+          {/* THE 5TH SENSOR BLOCK */}
+          <div className="card wind-highlight">
             <h3>Wind Speed</h3>
-            <div className="wind-visual">
-              <div className="wind-line"></div>
-              <div className="wind-line"></div>
-              <div className="wind-line"></div>
+            <div className="wind-box">
+              <div className="wind-trace trace-1"></div>
+              <div className="wind-trace trace-2"></div>
+              <div className="wind-trace trace-3"></div>
             </div>
-            <div className="value">{sensors.wind}<span>km/h</span></div>
+            <p>{sensors.wind} km/h</p>
           </div>
         </div>
       </header>

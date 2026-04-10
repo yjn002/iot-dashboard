@@ -1,86 +1,96 @@
 .App {
   text-align: center;
-  background-color: #0a0a0a;
-  min-height: 100vh;
-  color: white;
-  font-family: 'Inter', sans-serif;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
 }
 
 .App-header {
-  padding: 50px 20px;
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
 }
 
-h1 {
-  color: #deff9a;
-  font-size: 2.5rem;
-  margin-bottom: 50px;
-  text-shadow: 0 0 20px rgba(222, 255, 154, 0.3);
+.App-link {
+  color: #61dafb;
 }
 
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- ADDED SENSOR GRID & WIND ANIMATION --- */
 .sensor-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 90%;
+  max-width: 1000px;
+  margin-top: 30px;
 }
 
 .card {
-  background: #161616;
-  border: 1px solid #333;
-  padding: 30px;
-  border-radius: 24px;
-  transition: all 0.3s ease;
-}
-
-.card:hover {
-  border-color: #deff9a;
-  transform: translateY(-5px);
+  background: #32363e;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #61dafb;
 }
 
 .card h3 {
-  color: #888;
-  font-size: 0.9rem;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-}
-
-.value {
-  font-size: 2.8rem;
-  font-weight: 700;
-}
-
-.value span {
+  margin: 0;
   font-size: 1rem;
-  color: #deff9a;
-  margin-left: 5px;
+  color: #61dafb;
 }
 
-/* WIND ANIMATION */
-.wind-card {
-  border: 2px solid #deff9a;
+.card p {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin: 10px 0;
 }
 
-.wind-visual {
-  height: 30px;
+.wind-highlight {
+  border: 2px solid #deff9a !important;
+}
+
+.wind-box {
+  height: 25px;
   width: 100%;
   position: relative;
   overflow: hidden;
-  margin-bottom: 10px;
+  margin: 5px 0;
 }
 
-.wind-line {
+.wind-trace {
   position: absolute;
   height: 2px;
   background: #deff9a;
   border-radius: 2px;
+  opacity: 0.7;
 }
 
-.wind-line:nth-child(1) { width: 40px; top: 5px; left: -50px; animation: moveWind 1s infinite linear; }
-.wind-line:nth-child(2) { width: 60px; top: 15px; left: -70px; animation: moveWind 1.5s infinite linear 0.2s; }
-.wind-line:nth-child(3) { width: 30px; top: 25px; left: -40px; animation: moveWind 0.8s infinite linear 0.4s; }
+.trace-1 { width: 40px; top: 5px; left: -50px; animation: blow 1s infinite linear; }
+.trace-2 { width: 60px; top: 12px; left: -70px; animation: blow 1.4s infinite linear 0.2s; }
+.trace-3 { width: 35px; top: 20px; left: -40px; animation: blow 0.9s infinite linear 0.4s; }
 
-@keyframes moveWind {
+@keyframes blow {
   0% { left: -70px; }
-  100% { left: 100%; }
+  100% { left: 110%; }
 }

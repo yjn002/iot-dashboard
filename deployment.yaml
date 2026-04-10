@@ -15,7 +15,7 @@ spec:
       containers:
       - name: iot-dashboard
         image: iot-dashboard:latest
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
 ---

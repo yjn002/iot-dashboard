@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: iot-dashboard
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: iot-dashboard
@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
       - name: iot-dashboard
-        image: iot-dashboard:v1
-        imagePullPolicy: Never
+        image: iot-dashboard:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
 ---

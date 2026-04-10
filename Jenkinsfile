@@ -1,115 +1,45 @@
 pipeline {
     agent any
 
-    // ─── ENVIRONMENT VARIABLES ───────────────────────────────────────
-    environment {
-        // Docker Hub username
-        DOCKER_HUB_USER = 'raghuksit'
-
-        // Image name on Docker Hub
-        IMAGE_NAME = 'iot-dashboard'
-
-        // Tag using Jenkins build number — e.g. iot-dashboard:5
-        IMAGE_TAG = "${DOCKER_HUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER}"
-
-        // Latest tag — always points to newest build
-        IMAGE_LATEST = "${DOCKER_HUB_USER}/${IMAGE_NAME}:latest"
-
-        // Jenkins credential ID we created for Docker Hub
-        DOCKER_CREDENTIALS = 'dockerhub-credentials'
-    }
-
     stages {
-
-        // ─── STAGE 1: CHECKOUT ───────────────────────────────────────
-        stage('Checkout') {
+        stage('Install Dependencies') {
             steps {
-                // Pull latest code from GitHub
-                // Jenkins automatically checks out the branch that triggered the build
-                checkout scm
-                echo "✅ Code checked out from GitHub"
-                sh 'ls -la'
+                echo 'Installing project dependencies...'
+                bat 'npm install --legacy-peer-deps'
             }
         }
 
-        // ─── STAGE 2: BUILD REACT APP ────────────────────────────────
         stage('Build React App') {
             steps {
-                echo "📦 Installing dependencies..."
-                // Install Node dependencies inside Jenkins container
-                sh 'npm install --legacy-peer-deps'
-
-                echo "🔨 Building production bundle..."
-                // Creates /build folder with optimized static files
-                sh 'npm run build'
-
-                echo "✅ React build complete"
-                sh 'ls -la build/'
+                echo 'Building the React production bundle...'
+                bat 'npm run build'
             }
         }
 
-        // ─── STAGE 3: DOCKER BUILD ───────────────────────────────────
         stage('Docker Build') {
             steps {
-                echo "🐳 Building Docker image: ${IMAGE_TAG}"
-                // Build image with both versioned and latest tags
-                sh "docker build -t ${IMAGE_TAG} -t ${IMAGE_LATEST} ."
-                echo "✅ Docker image built successfully"
-
-                // Show image size
-                sh "docker images | grep ${IMAGE_NAME}"
+                echo 'Packaging the application into a Docker image...'
+                // Using v${BUILD_NUMBER} to keep versions unique
+                bat "docker build -t iot-dashboard:v${env.BUILD_NUMBER} ."
+                bat "docker tag iot-dashboard:v${env.BUILD_NUMBER} iot-dashboard:latest"
             }
         }
 
-        // ─── STAGE 4: DOCKER PUSH ────────────────────────────────────
-        stage('Docker Push') {
-            steps {
-                echo "⬆️ Pushing image to Docker Hub..."
-                // Login using Jenkins stored credentials (never hardcode passwords!)
-                withCredentials([usernamePassword(
-                    credentialsId: DOCKER_CREDENTIALS,
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                    sh "docker push ${IMAGE_TAG}"
-                    sh "docker push ${IMAGE_LATEST}"
-                }
-                echo "✅ Image pushed to hub.docker.com/${DOCKER_HUB_USER}/${IMAGE_NAME}"
-            }
-        }
-
-        // ─── STAGE 5: DEPLOY TO KUBERNETES ───────────────────────────
         stage('Deploy to Kubernetes') {
             steps {
-                echo "☸️ Deploying to Kubernetes cluster..."
-                // Apply K8s manifests (we create these in Phase 5)
-                sh "kubectl apply -f k8s/deployment.yaml"
-                sh "kubectl apply -f k8s/service.yaml"
-
-                // Update image to the newly built version
-                sh "kubectl set image deployment/iot-dashboard iot-dashboard=${IMAGE_TAG}"
-
-                // Wait for rollout to complete
-                sh "kubectl rollout status deployment/iot-dashboard --timeout=120s"
-                echo "✅ Deployment complete!"
+                echo 'Deploying to Minikube...'
+                // Ensure the deployment.yaml exists in your root folder
+                bat 'kubectl apply -f deployment.yaml'
             }
         }
     }
 
-    // ─── POST BUILD ACTIONS ──────────────────────────────────────────
     post {
         success {
-            echo "🎉 Pipeline SUCCESS — Build #${BUILD_NUMBER} deployed!"
-            echo "🌐 App running at: http://localhost via Kubernetes"
+            echo '✅ Pipeline completed successfully!'
         }
         failure {
-            echo "❌ Pipeline FAILED — Check the logs above"
-            // Clean up dangling images on failure
-            sh "docker image prune -f"
-        }
-        always {
-            echo "📋 Build #${BUILD_NUMBER} finished — Status: ${currentBuild.result}"
+            echo '❌ Pipeline failed. Switching to "bat" solved the "sh" error, check logs for other issues.'
         }
     }
 }

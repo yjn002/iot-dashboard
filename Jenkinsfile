@@ -11,51 +11,35 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                echo "✅ Code checked out"
+                echo "Code checked out"
             }
         }
 
         stage('Install') {
             steps {
-                bat 'npm install --legacy-peer-deps'
-                echo "📦 Dependencies installed"
+                sh 'npm install --legacy-peer-deps'
             }
         }
 
         stage('Build React') {
             steps {
-                bat 'npm run build'
-                echo "🔨 React build complete"
+                sh 'npm run build'
             }
         }
 
         stage('Docker Build') {
             steps {
-                bat "docker build -t %IMAGE_NAME%:%IMAGE_TAG% ."
-                bat "docker tag %IMAGE_NAME%:%IMAGE_TAG% %IMAGE_NAME%:latest"
-                echo "🐳 Docker image built: %IMAGE_NAME%:%IMAGE_TAG%"
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest"
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                bat 'kubectl apply -f deployment.yaml'
-                bat 'kubectl rollout restart deployment iot-dashboard'
-                bat 'kubectl rollout status deployment iot-dashboard'
-                echo "☸️ Deployment successful"
+                sh 'kubectl apply -f deployment.yaml'
+                sh 'kubectl rollout restart deployment iot-dashboard'
+                sh 'kubectl rollout status deployment iot-dashboard'
             }
-        }
-    }
-
-    post {
-        success {
-            echo "🎉 Build #${env.BUILD_NUMBER} deployed successfully!"
-        }
-        failure {
-            echo "❌ Build failed — check logs"
-        }
-        always {
-            echo "📋 Pipeline finished: ${currentBuild.result}"
         }
     }
 }

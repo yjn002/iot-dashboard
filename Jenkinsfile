@@ -15,15 +15,19 @@ pipeline {
             }
         }
 
-        stage('Install') {
+        stage('Install & Build (Node via npx)') {
             steps {
-                sh '/usr/bin/npm install --legacy-peer-deps'
-            }
-        }
+                sh '''
+                curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+                apt-get update
+                apt-get install -y nodejs
 
-        stage('Build React') {
-            steps {
-                sh '/usr/bin/npm run build'
+                node -v
+                npm -v
+
+                npm install --legacy-peer-deps
+                npm run build
+                '''
             }
         }
 

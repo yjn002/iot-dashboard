@@ -15,11 +15,25 @@ pipeline {
             }
         }
 
-        stage('Install & Build (Node via npx)') {
+        stage('Install') {
             steps {
                 sh '''
-                npx --yes create-react-app temp-app >/dev/null 2>&1 || true
+                export PATH=/usr/bin:/usr/local/bin:$PATH
+                echo "Checking Node and npm..."
+                which node || true
+                which npm || true
+                node -v || true
+                npm -v || true
+
                 npm install --legacy-peer-deps
+                '''
+            }
+        }
+
+        stage('Build React') {
+            steps {
+                sh '''
+                export PATH=/usr/bin:/usr/local/bin:$PATH
                 npm run build
                 '''
             }

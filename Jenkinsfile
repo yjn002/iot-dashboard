@@ -3,45 +3,62 @@ pipeline {
 
     environment {
         IMAGE_NAME = "iot-dashboard"
-        IMAGE_TAG = "v${env.BUILD_NUMBER}"
+        TAG = "v${env.BUILD_NUMBER}"
     }
 
     stages {
 
-        stage('Checkout') {
+        stage('Clone Source') {
             steps {
-                checkout scm
+                git branch: 'main', url: 'https://github.com/yjn002/iot-dashboard.git'
             }
         }
 
-        stage('Install') {
+        stage('Install & Build React') {
             steps {
-                sh 'npm install --legacy-peer-deps'
-            }
-        }
+                bat """
+                echo Checking Node...
+                node -v
+                npm -v
 
-        stage('Build') {
-            steps {
-                sh 'npm run build'
+                echo Installing dependencies...
+                npm install --legacy-peer-deps
+
+                echo Building React app...
+                npm run build
+                """
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh '''
-                docker build -t $IMAGE_NAME:$IMAGE_TAG .
-                docker tag $IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME:latest
-                '''
+                bat """
+                docker build -t %IMAGE_NAME%:%TAG% .
+                docker tag %IMAGE_NAME%:%TAG% %IMAGE_NAME%:latest
+                """
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy/Update') {
             steps {
-                sh '''
-                kubectl apply -f deployment.yaml
-                kubectl rollout restart deployment iot-dashboard
-                '''
+                bat """
+                @echo off
+                echo Terminating stale containers...
+                docker rm -f iot_instance 2>nul || ver >nul
+                
+                echo Deploying %IMAGE_NAME%:%TAG% to Port 8082...
+                docker run -d -p 8082:80 --name iot_instance %IMAGE_NAME%:%TAG%
+                """
             }
+        }
+    }
+
+    post {
+        success {
+            echo "Deployment of version ${TAG} successful."
+        }
+        failure {
+            echo "Critical failure in Pipeline. Inspect Docker logs."
         }
     }
 }

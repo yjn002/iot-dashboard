@@ -15,16 +15,17 @@ pipeline {
             }
         }
 
-        stage('Install & Build (Node via npx)') {
+        stage('Install & Build (Node Container)') {
+            agent {
+                docker {
+                    image 'node:18'
+                    args '-u root'
+                }
+            }
             steps {
                 sh '''
-                curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-                apt-get update
-                apt-get install -y nodejs
-
                 node -v
                 npm -v
-
                 npm install --legacy-peer-deps
                 npm run build
                 '''

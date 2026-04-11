@@ -11,31 +11,18 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                echo "Code checked out"
             }
         }
 
         stage('Install') {
             steps {
-                sh '''
-                export PATH=/usr/bin:/usr/local/bin:$PATH
-                echo "Checking Node and npm..."
-                which node || true
-                which npm || true
-                node -v || true
-                npm -v || true
-
-                npm install --legacy-peer-deps
-                '''
+                sh 'npm install --legacy-peer-deps'
             }
         }
 
-        stage('Build React') {
+        stage('Build') {
             steps {
-                sh '''
-                export PATH=/usr/bin:/usr/local/bin:$PATH
-                npm run build
-                '''
+                sh 'npm run build'
             }
         }
 
@@ -48,12 +35,11 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy') {
             steps {
                 sh '''
                 kubectl apply -f deployment.yaml
                 kubectl rollout restart deployment iot-dashboard
-                kubectl rollout status deployment iot-dashboard
                 '''
             }
         }

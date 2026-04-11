@@ -15,17 +15,10 @@ pipeline {
             }
         }
 
-        stage('Install & Build (Node Container)') {
-            agent {
-                docker {
-                    image 'node:18'
-                    args '-u root'
-                }
-            }
+        stage('Install & Build (Node via npx)') {
             steps {
                 sh '''
-                node -v
-                npm -v
+                npx --yes create-react-app temp-app >/dev/null 2>&1 || true
                 npm install --legacy-peer-deps
                 npm run build
                 '''

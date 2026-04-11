@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        PATH = "/usr/bin:/usr/local/bin:${env.PATH}"
         IMAGE_NAME = "iot-dashboard"
         IMAGE_TAG = "v${env.BUILD_NUMBER}"
     }
@@ -16,19 +15,21 @@ pipeline {
             }
         }
 
-        stage('Install') {
+        stage('Install Dependencies') {
             steps {
                 sh '''
-                export PATH=$PATH:/usr/bin:/usr/local/bin
+                apt update
+                apt install -y nodejs npm
+                node -v
+                npm -v
                 npm install --legacy-peer-deps
                 '''
             }
         }
 
-        stage('Build React') {
+        stage('Build React App') {
             steps {
                 sh '''
-                export PATH=$PATH:/usr/bin:/usr/local/bin
                 npm run build
                 '''
             }
@@ -48,6 +49,7 @@ pipeline {
                 sh '''
                 kubectl apply -f deployment.yaml
                 kubectl rollout restart deployment iot-dashboard
+                kubectl rollout status deployment iot-dashboard
                 '''
             }
         }

@@ -15,23 +15,15 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install') {
             steps {
-                sh '''
-                apt update
-                apt install -y nodejs npm
-                node -v
-                npm -v
-                npm install --legacy-peer-deps
-                '''
+                sh '/usr/bin/npm install --legacy-peer-deps'
             }
         }
 
-        stage('Build React App') {
+        stage('Build React') {
             steps {
-                sh '''
-                npm run build
-                '''
+                sh '/usr/bin/npm run build'
             }
         }
 

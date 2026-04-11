@@ -1,45 +1,17 @@
-pipeline {
-    agent any
-
-    environment {
-        IMAGE_NAME = "iot-dashboard"
-        IMAGE_TAG = "v${env.BUILD_NUMBER}"
+stage('Install') {
+    steps {
+        sh '''
+        export PATH=$PATH:/usr/bin:/usr/local/bin
+        npm install --legacy-peer-deps
+        '''
     }
+}
 
-    stages {
-
-        stage('Checkout') {
-            steps {
-                checkout scm
-                echo "Code checked out"
-            }
-        }
-
-        stage('Install') {
-            steps {
-                sh 'npm install --legacy-peer-deps'
-            }
-        }
-
-        stage('Build React') {
-            steps {
-                sh 'npm run build'
-            }
-        }
-
-        stage('Docker Build') {
-            steps {
-                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-                sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest"
-            }
-        }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh 'kubectl apply -f deployment.yaml'
-                sh 'kubectl rollout restart deployment iot-dashboard'
-                sh 'kubectl rollout status deployment iot-dashboard'
-            }
-        }
+stage('Build React') {
+    steps {
+        sh '''
+        export PATH=$PATH:/usr/bin:/usr/local/bin
+        npm run build
+        '''
     }
 }
